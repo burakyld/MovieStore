@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MovieStore.DbOperations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,61 +12,42 @@ namespace MovieStore.Controllers
     [ApiController]
     public class MovieController : ControllerBase
     {
-        private static List<Movie> movieList = new List<Movie>() {
-            new Movie()
-            {
-                Id = 1,
-                Name = "Yüzüklerin Efendisi",
-                GenreId = 1,
-                Imdb = 9.0,
-                PublishDate = DateTime.Today
-            },
-            new Movie()
-            {
-                Id = 2,
-                Name = "Alacakaranlık",
-                GenreId = 1,
-                Imdb = 9.5,
-                PublishDate = DateTime.Now
-            },
-            new Movie()
-            {
-                Id = 3,
-                Name = "Who Am I?",
-                GenreId = 2,
-                Imdb = 8.0,
-                PublishDate = DateTime.Today
-            }
-        };
+        private readonly AppDbContext _appDbContext;
+
+        public MovieController(AppDbContext appDbContext)
+        {
+            _appDbContext = appDbContext;
+        }
 
 
         [HttpGet]
         public List<Movie> GetAllMovies()
         {
-            return movieList.OrderBy(fu=>fu.Name).ToList();
+            return _appDbContext.Movies.OrderBy(fu=>fu.Name).ToList();
         }
 
         [HttpGet("{id}")]
         public Movie GetMovieById(int id)
         {
-            return movieList.FirstOrDefault(f=>f.Id == id);
+            return _appDbContext.Movies.FirstOrDefault(f=>f.Id == id);
         }
 
         [HttpPost]
         public IActionResult AddMovie([FromBody] Movie movie)
         {
-            if(movieList.FirstOrDefault(f=>f.Name == movie.Name) != null)
+            if(_appDbContext.Movies.FirstOrDefault(f=>f.Name == movie.Name) != null)
             {
                 return BadRequest("Bu isimde kayıtlı film bulunuyor.");
             }
-            movieList.Add(movie);
+            _appDbContext.Movies.Add(movie);
+            _appDbContext.SaveChanges();
             return Ok(movie);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateMovie(int id, Movie updatedMovie)
         {
-            var movie = movieList.FirstOrDefault(f => f.Id == id);
+            var movie = _appDbContext.Movies.FirstOrDefault(f => f.Id == id);
             if (movie == null)
             {
                 return BadRequest("Girilen id'ye ait film bulunmamaktadır.");
@@ -75,6 +57,8 @@ namespace MovieStore.Controllers
             movie.PublishDate = updatedMovie != default ? updatedMovie.PublishDate : movie.PublishDate;
             movie.GenreId = updatedMovie != default ? updatedMovie.GenreId : movie.GenreId;
 
+            _appDbContext.SaveChanges();
+
             return Ok();
         }
 
@@ -82,12 +66,13 @@ namespace MovieStore.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteMovie(int id)
         {
-            var movie = movieList.FirstOrDefault(f => f.Id == id);
+            var movie = _appDbContext.Movies.FirstOrDefault(f => f.Id == id);
             if (movie == null)
             {
                 return BadRequest("Girilen id'ye ait film bulunmamaktadır.");
             }
-            movieList.Remove(movie);
+            _appDbContext.Movies.Remove(movie);
+            _appDbContext.SaveChanges();
             return Ok();
         }
     }
