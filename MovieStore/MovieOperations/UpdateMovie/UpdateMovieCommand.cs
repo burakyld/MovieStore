@@ -11,15 +11,16 @@ namespace MovieStore.MovieOperations.UpdateMovie
     {
         private readonly AppDbContext _appDbContext;
         public UpdateMovieModel UpdateMovieModel { get; set; }
+        public int MovieId { get; set; }
 
         public UpdateMovieCommand(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }
 
-        public void Handle(int id)
+        public void Handle()
         {
-            var movie = _appDbContext.Movies.FirstOrDefault(f=>f.Id == id);
+            var movie = _appDbContext.Movies.FirstOrDefault(f=>f.Id == MovieId);
             if (movie == null) throw new InvalidOperationException("Girilen id ye ait film bulunmamaktadır.");
 
             movie.Name = UpdateMovieModel.Name != default && UpdateMovieModel.Name != null ? UpdateMovieModel.Name : movie.Name;

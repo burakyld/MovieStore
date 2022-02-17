@@ -10,16 +10,18 @@ namespace MovieStore.MovieOperations.GetMovies
     public class GetMovieByIdQuery
     {
         private readonly AppDbContext _appDbContext;
+        public int MovieId { get; set; }
 
         public GetMovieByIdQuery(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }
 
-        public GetMovieByIdViewModel Handle(int id)
+        public GetMovieByIdViewModel Handle()
         {
-            var result = _appDbContext.Movies.FirstOrDefault(f => f.Id == id);
-            if (result == null) throw new InvalidOperationException("Girilen id ye ait film bulunmamaktadır.");
+            var result = _appDbContext.Movies.FirstOrDefault(f => f.Id == MovieId);
+            if (result == null) 
+                throw new InvalidOperationException("Girilen id ye ait film bulunmamaktadır.");
 
             GetMovieByIdViewModel getMovieByIdViewModel = new GetMovieByIdViewModel();
 

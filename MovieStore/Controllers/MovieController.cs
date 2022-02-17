@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieStore.DbOperations;
 using MovieStore.MovieOperations.CreateMovie;
+using MovieStore.MovieOperations.DeleteMovie;
 using MovieStore.MovieOperations.GetMovies;
 using MovieStore.MovieOperations.UpdateMovie;
 using System;
@@ -35,18 +36,19 @@ namespace MovieStore.Controllers
         public IActionResult GetMovieById(int id)
         {
             GetMovieByIdQuery getMovieByIdQuery = new GetMovieByIdQuery(_appDbContext);
+            GetMovieByIdViewModel result;
 
             try {
+                getMovieByIdQuery.MovieId = id;
+                result = getMovieByIdQuery.Handle();
 
-                var result = getMovieByIdQuery.Handle(id);
-                return Ok(result);
 
             } catch(Exception ex) {
 
                 return BadRequest(ex.Message);
             }
 
-
+            return Ok(result);
         }
 
         [HttpPost]
@@ -72,7 +74,8 @@ namespace MovieStore.Controllers
             try
             {
                 updateMovieCommand.UpdateMovieModel = updatedMovie;
-                updateMovieCommand.Handle(id);
+                updateMovieCommand.MovieId = id;
+                updateMovieCommand.Handle();
             }
             catch(Exception ex)
             {
@@ -86,13 +89,16 @@ namespace MovieStore.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteMovie(int id)
         {
-            var movie = _appDbContext.Movies.FirstOrDefault(f => f.Id == id);
-            if (movie == null)
+            DeleteMovieCommand deleteMovieCommand = new DeleteMovieCommand(_appDbContext);
+            try
             {
-                return BadRequest("Girilen id'ye ait film bulunmamaktadır.");
+                deleteMovieCommand.MovieId = id;
+                deleteMovieCommand.Handle();
             }
-            _appDbContext.Movies.Remove(movie);
-            _appDbContext.SaveChanges();
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return Ok();
         }
     }
