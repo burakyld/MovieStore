@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieStore.DbOperations;
+using MovieStore.MovieOperations.CreateMovie;
+using MovieStore.MovieOperations.GetMovies;
+using MovieStore.MovieOperations.UpdateMovie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,43 +24,60 @@ namespace MovieStore.Controllers
 
 
         [HttpGet]
-        public List<Movie> GetAllMovies()
+        public IActionResult GetAllMovies()
         {
-            return _appDbContext.Movies.OrderBy(fu=>fu.Name).ToList();
+            GetMoviesQuery getMoviesQuery = new GetMoviesQuery(_appDbContext);
+
+            return Ok(getMoviesQuery.Handle());
         }
 
         [HttpGet("{id}")]
-        public Movie GetMovieById(int id)
+        public IActionResult GetMovieById(int id)
         {
-            return _appDbContext.Movies.FirstOrDefault(f=>f.Id == id);
+            GetMovieByIdQuery getMovieByIdQuery = new GetMovieByIdQuery(_appDbContext);
+
+            try {
+
+                var result = getMovieByIdQuery.Handle(id);
+                return Ok(result);
+
+            } catch(Exception ex) {
+
+                return BadRequest(ex.Message);
+            }
+
+
         }
 
         [HttpPost]
-        public IActionResult AddMovie([FromBody] Movie movie)
+        public IActionResult AddMovie([FromBody] CreateMovieModel createMovieModel)
         {
-            if(_appDbContext.Movies.FirstOrDefault(f=>f.Name == movie.Name) != null)
+            CreateMovieCommand createMovieCommand = new CreateMovieCommand(_appDbContext);
+            try
             {
-                return BadRequest("Bu isimde kayıtlı film bulunuyor.");
+                createMovieCommand.CreateMovieModel = createMovieModel;
+                createMovieCommand.Handle();
             }
-            _appDbContext.Movies.Add(movie);
-            _appDbContext.SaveChanges();
-            return Ok(movie);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateMovie(int id, Movie updatedMovie)
+        public IActionResult UpdateMovie(int id, UpdateMovieModel updatedMovie)
         {
-            var movie = _appDbContext.Movies.FirstOrDefault(f => f.Id == id);
-            if (movie == null)
+            UpdateMovieCommand updateMovieCommand = new UpdateMovieCommand(_appDbContext);
+            try
             {
-                return BadRequest("Girilen id'ye ait film bulunmamaktadır.");
+                updateMovieCommand.UpdateMovieModel = updatedMovie;
+                updateMovieCommand.Handle(id);
             }
-            movie.Name = updatedMovie != default ? updatedMovie.Name : movie.Name;
-            movie.Imdb = updatedMovie != default ? updatedMovie.Imdb : movie.Imdb;
-            movie.PublishDate = updatedMovie != default ? updatedMovie.PublishDate : movie.PublishDate;
-            movie.GenreId = updatedMovie != default ? updatedMovie.GenreId : movie.GenreId;
-
-            _appDbContext.SaveChanges();
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             return Ok();
         }
