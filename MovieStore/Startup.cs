@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MovieStore.DbOperations;
+using MovieStore.Mappings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace MovieStore
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MovieStore", Version = "v1" });
             });
             services.AddDbService(Configuration);
+            services.AddMapperService();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

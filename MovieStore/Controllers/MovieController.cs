@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieStore.DbOperations;
 using MovieStore.MovieOperations.CreateMovie;
@@ -17,17 +18,19 @@ namespace MovieStore.Controllers
     public class MovieController : ControllerBase
     {
         private readonly AppDbContext _appDbContext;
+        private readonly IMapper _mapper;
 
-        public MovieController(AppDbContext appDbContext)
+        public MovieController(AppDbContext appDbContext, IMapper mapper)
         {
             _appDbContext = appDbContext;
+            _mapper = mapper;
         }
 
 
         [HttpGet]
         public IActionResult GetAllMovies()
         {
-            GetMoviesQuery getMoviesQuery = new GetMoviesQuery(_appDbContext);
+            GetMoviesQuery getMoviesQuery = new GetMoviesQuery(_appDbContext, _mapper);
 
             return Ok(getMoviesQuery.Handle());
         }
@@ -35,7 +38,7 @@ namespace MovieStore.Controllers
         [HttpGet("{id}")]
         public IActionResult GetMovieById(int id)
         {
-            GetMovieByIdQuery getMovieByIdQuery = new GetMovieByIdQuery(_appDbContext);
+            GetMovieByIdQuery getMovieByIdQuery = new GetMovieByIdQuery(_appDbContext, _mapper);
             GetMovieByIdViewModel result;
 
             try {
@@ -54,7 +57,7 @@ namespace MovieStore.Controllers
         [HttpPost]
         public IActionResult AddMovie([FromBody] CreateMovieModel createMovieModel)
         {
-            CreateMovieCommand createMovieCommand = new CreateMovieCommand(_appDbContext);
+            CreateMovieCommand createMovieCommand = new CreateMovieCommand(_appDbContext, _mapper);
             try
             {
                 createMovieCommand.CreateMovieModel = createMovieModel;
@@ -70,7 +73,7 @@ namespace MovieStore.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateMovie(int id, UpdateMovieModel updatedMovie)
         {
-            UpdateMovieCommand updateMovieCommand = new UpdateMovieCommand(_appDbContext);
+            UpdateMovieCommand updateMovieCommand = new UpdateMovieCommand(_appDbContext, _mapper);
             try
             {
                 updateMovieCommand.UpdateMovieModel = updatedMovie;

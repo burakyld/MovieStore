@@ -1,4 +1,5 @@
-﻿using MovieStore.DbOperations;
+﻿using AutoMapper;
+using MovieStore.DbOperations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,13 @@ namespace MovieStore.MovieOperations.CreateMovie
     public class CreateMovieCommand
     {
         private readonly AppDbContext _appDbContext;
+        private readonly IMapper _mapper;
         public CreateMovieModel CreateMovieModel { get; set; }
 
-        public CreateMovieCommand(AppDbContext appDbContext)
+        public CreateMovieCommand(AppDbContext appDbContext, IMapper mapper)
         {
             _appDbContext = appDbContext;
+            _mapper = mapper;
         }
 
         public void Handle()
@@ -23,11 +26,7 @@ namespace MovieStore.MovieOperations.CreateMovie
             {
                 throw new InvalidOperationException("Bu isimde kayıtlı film bulunuyor.");
             }
-            movies = new Movie();
-            movies.Name = CreateMovieModel.Name;
-            movies.Imdb = CreateMovieModel.Imdb;
-            movies.GenreId = CreateMovieModel.GenreId;
-            movies.PublishDate = CreateMovieModel.PublishDate;
+            movies = _mapper.Map<Movie>(CreateMovieModel);
 
             _appDbContext.Movies.Add(movies);
             _appDbContext.SaveChanges();
