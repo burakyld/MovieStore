@@ -2,5 +2,7 @@
 
 .NET 5 Web API
 
-İlk olarak Veritabanı bağlantısız temel request işlemleri.
-2. olarak MSSQL bağlantısı kurulup request işlemlerinin güncellenmesi.
+1. Veritabanı bağlantısız temel request işlemleri(GET,PUT,POST,DELETE).
+2. MSSQL bağlantısı kurulup request işlemlerinin güncellenmesi.
+3. İşlemler Command ve Query olarak ayrılarak Controller sadeleştirildi.
+4. AutoMapper projeye dahil edilerek Command ve Query'deki işlemler sadeleştirildi.
