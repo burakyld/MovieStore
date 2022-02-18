@@ -23,7 +23,11 @@ namespace MovieStore.Mappings
                 .ForMember(dest => dest.PublishDate, opt => opt.MapFrom(src => (src.PublishDate).Date.ToString("dd/MM/yyyy")));
 
             CreateMap<CreateMovieModel, Movie>();
+
             CreateMap<UpdateMovieModel, Movie>();
+            CreateMap<UpdateMovieModel, Movie>().ReverseMap();
+            CreateMap<Movie, UpdateMovieModel>().ReverseMap();
+            CreateMap<Movie, UpdateMovieModel>();
         }
     }
 }

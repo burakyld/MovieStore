@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MovieStore.DbOperations;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,8 @@ namespace MovieStore.MovieOperations.UpdateMovie
             var movie = _appDbContext.Movies.FirstOrDefault(f=>f.Id == MovieId);
             if (movie == null) throw new InvalidOperationException("Girilen id ye ait film bulunmamaktadır.");
 
-            _mapper.Map<Movie>(UpdateMovieModel);
+            movie.Name = UpdateMovieModel.Name != default ? UpdateMovieModel.Name : movie.Name;
+            movie.Imdb = UpdateMovieModel.Imdb != default ? UpdateMovieModel.Imdb : movie.Imdb;
 
             _appDbContext.SaveChanges();
         }
@@ -36,10 +38,6 @@ namespace MovieStore.MovieOperations.UpdateMovie
     public class UpdateMovieModel
     {
         public string Name { get; set; }
-
-        public DateTime PublishDate { get; set; }
-
-        public int GenreId { get; set; }
 
         public double Imdb { get; set; }
     }

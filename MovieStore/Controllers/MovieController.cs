@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieStore.DbOperations;
 using MovieStore.MovieOperations.CreateMovie;
 using MovieStore.MovieOperations.DeleteMovie;
+using MovieStore.MovieOperations.GetMovieById;
 using MovieStore.MovieOperations.GetMovies;
 using MovieStore.MovieOperations.UpdateMovie;
 using System;
@@ -43,6 +45,10 @@ namespace MovieStore.Controllers
 
             try {
                 getMovieByIdQuery.MovieId = id;
+
+                GetMovieByIdQueryValidator validator = new GetMovieByIdQueryValidator();
+                validator.ValidateAndThrow(getMovieByIdQuery);
+
                 result = getMovieByIdQuery.Handle();
 
 
@@ -61,6 +67,10 @@ namespace MovieStore.Controllers
             try
             {
                 createMovieCommand.CreateMovieModel = createMovieModel;
+
+                CreateMovieCommandValidator validator = new CreateMovieCommandValidator();
+                validator.ValidateAndThrow(createMovieCommand);
+
                 createMovieCommand.Handle();
             }
             catch (Exception ex)
@@ -78,6 +88,10 @@ namespace MovieStore.Controllers
             {
                 updateMovieCommand.UpdateMovieModel = updatedMovie;
                 updateMovieCommand.MovieId = id;
+
+                UpdateMovieCommandValidator validator = new UpdateMovieCommandValidator();
+                validator.ValidateAndThrow(updateMovieCommand);
+
                 updateMovieCommand.Handle();
             }
             catch(Exception ex)
@@ -96,6 +110,10 @@ namespace MovieStore.Controllers
             try
             {
                 deleteMovieCommand.MovieId = id;
+
+                DeleteMovieCommandValidator validator = new DeleteMovieCommandValidator();
+                validator.ValidateAndThrow(deleteMovieCommand);
+
                 deleteMovieCommand.Handle();
             }
             catch(Exception ex)
